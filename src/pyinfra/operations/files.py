@@ -18,7 +18,6 @@ from typing import IO, Any
 from jinja2 import TemplateRuntimeError, TemplateSyntaxError, UndefinedError
 
 from pyinfra import host, logger, state
-from pyinfra.api.output import format_text
 from pyinfra.api import (
     FileDownloadCommand,
     FileUploadCommand,
@@ -31,6 +30,7 @@ from pyinfra.api import (
     operation,
 )
 from pyinfra.api.command import make_formatted_string_command
+from pyinfra.api.output import format_text
 from pyinfra.api.util import (
     get_call_location,
     get_file_io,
@@ -1460,16 +1460,17 @@ def template(
 
 
 @operation()
-def move(src: str, dest: str, overwrite=False):
+def move(src: str, dest: str, overwrite=False, assume_exists=False):
     """
     Move remote file/directory/link into remote directory
 
     + src: remote file/directory to move
     + dest: remote directory to move `src` into
     + overwrite: whether to overwrite dest, if present
+    + assume_exists: whether to assume the remote file exists
     """
 
-    if host.get_fact(File, src) is None:
+    if host.get_fact(File, src) is None and not assume_exists:
         raise OperationError(f"src {src} does not exist")
 
     if not host.get_fact(Directory, dest):
@@ -1486,16 +1487,17 @@ def move(src: str, dest: str, overwrite=False):
 
 
 @operation()
-def copy(src: str, dest: str, overwrite=False):
+def copy(src: str, dest: str, overwrite=False, assume_exists=False):
     """
     Copy remote file/directory/link into remote directory
 
     + src: remote file/directory to copy
     + dest: remote directory to copy `src` into
     + overwrite: whether to overwrite dest, if present
+    + assume_exists: whether to assume the remote file exists
     """
     src_is_dir = host.get_fact(Directory, src)
-    if not host.get_fact(File, src) and not src_is_dir:
+    if not host.get_fact(File, src) and not src_is_dir and not assume_exists:
         raise OperationError(f"src {src} does not exist")
 
     if not host.get_fact(Directory, dest):

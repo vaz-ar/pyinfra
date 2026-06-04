@@ -1,0 +1,20 @@
+{
+    "require_platform": ["Darwin", "Linux"],
+    "kwargs": {
+        "src": "tmp/testfile",
+        "dest": "tmp2",
+        "assume_exists": true
+    },
+    "facts": {
+        "files.File": {
+            "path=tmp/testfile": null,
+            "path=tmp2/testfile": null
+        },
+        "files.Directory": {
+            "path=tmp2": {
+                "mode": 700
+            }
+        }
+    },
+    "commands": ["mv tmp/testfile tmp2"]
+}
